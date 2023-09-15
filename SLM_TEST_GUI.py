@@ -9,6 +9,7 @@ from scipy.ndimage import gaussian_filter
 import time
 from os import listdir
 from os.path import isfile, join
+import pandas as pd
 # from IPython.display import display
 
 def calibration(input, xZoom = 1, yZoom = 1, xShift = 0, yShift = 0 ,angle = 1.2):
@@ -99,7 +100,7 @@ def center(imageArray):
 
 
 
-def feedback(testno = 0, count = 0, initial = None, initialArray = None, threshold = 90, blur = 5, innerBlur = 15, rangeVal = 5, maxIter = 100, yshift = 4, plot = False):
+def feedback(testno = 0, count = 0, initial = None, initialArray = None, threshold = 90, blur = 10, innerBlur = 15, rangeVal = 5, maxIter = 100, yshift = 4, plot = False):
     global aboveMultArray, belowMultArray, totalMultArray, totalMultImg, xi, yi, goalImg, goalArray, stacked, stacked2, x, y
     
     #####
@@ -119,8 +120,8 @@ def feedback(testno = 0, count = 0, initial = None, initialArray = None, thresho
     
     initialImg = ImageOps.flip(ImageOps.mirror(initialImg))     # With current setup, beam gets rotated 180° between the SLM and the CCD. Must align CCD image to match SLM screen before calculating grating
     
-    initialImg = zoom_at(initialImg, width/2 - 115, height/2 + 13, 1)     # Not final implementation of zoom function
-    initialImg = initialImg.rotate(1.2)     # Image is rotated 2°
+    initialImg = zoom_at(initialImg, width/2 - 246, height/2 + 10, 1)     # Not final implementation of zoom function
+    initialImg = initialImg.rotate(1.0)     # Image is rotated 2°
     initialImgArray = asarray(initialImg)
     initialImg = Image.fromarray(initialImgArray)
     initialMap = initialImg.load()
@@ -359,6 +360,8 @@ def feedback(testno = 0, count = 0, initial = None, initialArray = None, thresho
             initialImg.putpixel((i, cY), int(255))
         # initialImg.show()
     
+    pd.DataFrame(xi).to_csv('xi.csv')
+    pd.DataFrame(yi).to_csv('yi.csv')
     
     # totalMultImg.save("/Users/anthonylu/Library/CloudStorage/GoogleDrive-AnthonyLu@lbl.gov/.shortcut-targets-by-id/1VJBVeRRN_5zVF1Gqm0fEKW9dfVeRScci/SLM/feedbackAlgorithm/test" + str(testno) + "/" + str(count+1) + "TEST_15AMP_SIMGA20.png")
       
@@ -390,9 +393,9 @@ def feedback(testno = 0, count = 0, initial = None, initialArray = None, thresho
 
         
         plt.legend()
-        plt.xlim(550,1325)
+        plt.xlim(cX-400,cX+400)
         plt.ylim(0,260)
-        plt.title("Test " + str(testno) + ", Trial " + str(count) + ", AveDiff = " + str(np.round(diff,2)) + ", 15AMP_SIGMA20")
+        plt.title("Test " + str(testno) + ", Trial " + str(count) + ", AveDiff = " + str(np.round(diff,2)))
         # plt.savefig("/Users/anthonylu/Library/CloudStorage/GoogleDrive-AnthonyLu@lbl.gov/.shortcut-targets-by-id/1VJBVeRRN_5zVF1Gqm0fEKW9dfVeRScci/SLM/feedbackAlgorithm/test" + str(testno) + "/plot" + str(count) + "TEST_15AMP_SIGMA20.png")
         plt.show()
 
